@@ -99,4 +99,6 @@ app.use((err, req, res, next) => {
    if(!err.message) err.message = "Oh boy an error occured!";
    res.status(statusCode).render('error', {err} );
 })
-module.exports = app;
+app.listen(3000 || process.env.PORT, () => {
+    console.log("Listening to PORT 3000");
+})
