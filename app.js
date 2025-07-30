@@ -16,7 +16,7 @@ const LocalStrategy = require('passport-local');
 const User = require('./models/user');
 const mongoSanitize = require('express-mongo-sanitize');
 const app = express();
-const MongoDBStore = require("connect-mongo")(session);
+const MongoDBStore = require("connect-mongo");
 const dbUrl = process.env.DB_URL;
 
 app.use(express.json());
@@ -51,11 +51,12 @@ app.use(mongoSanitize({
     replaceWith: '_'
 }))
 const secret = process.env.SECRET;
-const store = new MongoDBStore({
-    url: dbUrl,
+const store = MongoDBStore.create({
+    mongoUrl: dbUrl,
     secret,
     touchAfter: 24 * 60 * 60
 });
+
 
 store.on("error", function (e) {
     console.log("SESSION STORE ERROR", e)
@@ -99,6 +100,4 @@ app.use((err, req, res, next) => {
    if(!err.message) err.message = "Oh boy an error occured!";
    res.status(statusCode).render('error', {err} );
 })
-app.listen(3000 || process.env.PORT, () => {
-    console.log("Listening to PORT 3000");
-})
+module.exports = app;
