@@ -1,6 +1,4 @@
-if (process.env.NODE_ENV !== "production") {
-    require('dotenv').config();
-}
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
@@ -16,7 +14,7 @@ const LocalStrategy = require('passport-local');
 const User = require('./models/user');
 const mongoSanitize = require('express-mongo-sanitize');
 const app = express();
-const MongoDBStore = require("connect-mongo");
+const MongoDBStore = require("connect-mongo")(session);
 const dbUrl = process.env.DB_URL;
 
 app.use(express.json());
@@ -51,12 +49,11 @@ app.use(mongoSanitize({
     replaceWith: '_'
 }))
 const secret = process.env.SECRET;
-const store = MongoDBStore.create({
-    mongoUrl: dbUrl,
+const store = new MongoDBStore({
+    url: dbUrl,
     secret,
     touchAfter: 24 * 60 * 60
 });
-
 
 store.on("error", function (e) {
     console.log("SESSION STORE ERROR", e)
@@ -100,4 +97,6 @@ app.use((err, req, res, next) => {
    if(!err.message) err.message = "Oh boy an error occured!";
    res.status(statusCode).render('error', {err} );
 })
-module.exports = app;
+app.listen(3000 || process.env.PORT, () => {
+    console.log("Listening to PORT 3000");
+})
